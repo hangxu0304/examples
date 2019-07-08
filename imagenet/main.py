@@ -8,6 +8,7 @@ import warnings
 import torch
 import torch.nn as nn
 import torch.nn.parallel
+import distributed_v101
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import torch.optim
@@ -147,13 +148,13 @@ def main_worker(gpu, ngpus_per_node, args):
             # DistributedDataParallel, we need to divide the batch size
             # ourselves based on the total number of GPUs we have
             args.batch_size = int(args.batch_size / ngpus_per_node)
-            args.workers = int((args.workers + ngpus_per_node - 1) / ngpus_per_node)
-            model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+            args.workers = int(args.workers / ngpus_per_node)
+            model = distributed_v101.DistributedDataParallel(model, device_ids=[args.gpu])
         else:
             model.cuda()
             # DistributedDataParallel will divide and allocate batch_size to all
             # available GPUs if device_ids are not set
-            model = torch.nn.parallel.DistributedDataParallel(model)
+            model = distributed_v101.DistributedDataParallel(model)
     elif args.gpu is not None:
         torch.cuda.set_device(args.gpu)
         model = model.cuda(args.gpu)
@@ -193,7 +194,7 @@ def main_worker(gpu, ngpus_per_node, args):
 
     # Data loading code
     traindir = os.path.join(args.data, 'train')
-    valdir = os.path.join(args.data, 'val')
+    valdir = os.path.join(args.data, 'validation')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
