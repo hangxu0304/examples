@@ -9,10 +9,10 @@ import torch.distributed as dist
 if dist.is_available():
     from torch.distributed.distributed_c10d import _get_default_group
 
-from ..modules import Module
-from .replicate import replicate
-from .scatter_gather import scatter_kwargs, gather
-from .parallel_apply import parallel_apply
+from torch.nn.modules import Module
+from torch.nn.parallel.replicate import replicate
+from torch.nn.parallel.scatter_gather import scatter_kwargs, gather
+from torch.nn.parallel.parallel_apply import parallel_apply
 from torch.cuda._utils import _get_device_index
 
 
